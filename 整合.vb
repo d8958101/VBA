@@ -250,6 +250,45 @@ Sub 整合()
     
         
     Next
+	
+	
+	
+	'vlook對照：if WorkingSheet.AIT P/N == AC.AIT PN
+    'AC.Oracle Attribute copy到 WorkingSheet.Grade
+    Dim FoundBeforeGrade As Range
+    Set FoundBeforeGrade = Sheets("BEFORE").Rows("1:1").Find("Grade", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        
+    Dim FoundACAITPin As Range
+    Set FoundACAITPin = Sheets("AC").Rows("1:1").Find("AIT PN", LookIn:=xlValues, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    
+    Dim FoundACOracle As Range
+    Set FoundACOracle = Sheets("AC").Rows("1:1").Find("Oracle Attribute", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    
+    '開始逐筆檢查WorkingSheet.AIT P/N
+    ''找出AIT P/N的最後一筆
+    lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeAITPin.Column).End(xlUp).Row
+    For i = 2 To lastrow
+        Dim workingAITPin As String
+        workingAITPin = Sheets("BEFORE").Cells(i, FoundBeforeAITPin.Column)
+        lastrowAC = Sheets("AC").Cells(Rows.Count, FoundACAITPin.Column).End(xlUp).Row
+        Dim oracleAC As String
+        oracleAC = "N/A"
+        For ii = 2 To lastrowAC
+            Dim compareAITPin As String
+            compareAITPin = Sheets("AC").Cells(ii, FoundACAITPin.Column)
+            If workingAITPin = compareAITPin Then
+                '順利比對到key值的時候, 就要複製回去處理中的工作表
+                oracleAC = Sheets("AC").Cells(ii, FoundACOracle.Column)
+                                            
+                Exit For
+            End If
+            
+        Next
+                
+        Sheets("BEFORE").Cells(i, FoundBeforeGrade.Column) = oracleAC
+        
+        
+    Next
     
 End Sub
 
