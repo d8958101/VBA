@@ -148,9 +148,9 @@ Sub 整合()
          .Header = xlYes
          .Apply
     End With
-	
-	
-	'vlook對照：if 處理中的sheet.Line ID == PD 102.Supplier So Shipment No
+    
+    
+    'vlook對照：if 處理中的sheet.Line ID == PD 102.Supplier So Shipment No
     'PD 102.Cust Name+Sales Name copy回 處理中的sheet.Customer+Sales
     
     '找出處理中的sheet的Line ID欄位
@@ -212,9 +212,50 @@ Sub 整合()
         
         
     Next
-	
+    
+    
+    'vlook對照：if 處理中的sheet.Product_no == AIT PN處理後.Product_no (處理前)
+    'AIT PN處理後.AIT P/N (處理後) copy回 處理中的sheet.AIT P/N
+    Dim FoundBeforeProductNo As Range
+    Set FoundBeforeProductNo = Sheets("BEFORE").Rows("1:1").Find("Product_no", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
 
+    Dim FoundBeforeAITPin As Range
+    Set FoundBeforeAITPin = Sheets("BEFORE").Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+
+
+    Dim FoundMappingProductNo As Range
+    Set FoundMappingProductNo = Sheets("AIT PN處理後").Rows("1:1").Find("Product_no (處理前)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+
+    Dim FoundMappingAITPin As Range
+    Set FoundMappingAITPin = Sheets("AIT PN處理後").Rows("1:1").Find("AIT P/N (處理後)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+
+    lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
+    For i = 2 To lastrow
+        Dim productNo As String
+        productNo = Sheets("BEFORE").Cells(i, FoundBeforeProductNo.Column)
+        lastrowMapping = Sheets("AIT PN處理後").Cells(Rows.Count, FoundMappingProductNo.Column).End(xlUp).Row
+        Dim aitPinMapping As String
+        aitPinMapping = "N/A"
+        For ii = 2 To lastrowMapping
+            Dim compareProductNo As String
+            compareProductNo = Sheets("AIT PN處理後").Cells(ii, FoundMappingProductNo.Column)
+            If productNo = compareProductNo Then
+                '順利比對到key值的時候, 就要複製回去處理中的工作表
+                aitPinMapping = Sheets("AIT PN處理後").Cells(ii, FoundMappingAITPin.Column)
+                Exit For
+            End If
+        Next
+        '複製回去處理中的工作表
+        Sheets("BEFORE").Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
+    
+        
+    Next
+    
 End Sub
+
+
+
+
 
 
 
