@@ -250,10 +250,10 @@ Sub 整合()
     
         
     Next
-	
-	
-	
-	'vlook對照：if WorkingSheet.AIT P/N == AC.AIT PN
+    
+    
+    
+    'vlook對照：if WorkingSheet.AIT P/N == AC.AIT PN
     'AC.Oracle Attribute copy到 WorkingSheet.Grade
     Dim FoundBeforeGrade As Range
     Set FoundBeforeGrade = Sheets("BEFORE").Rows("1:1").Find("Grade", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
@@ -290,7 +290,16 @@ Sub 整合()
         
     Next
     
+    '透過inputbox輸入匯率
+    Dim FoundRate As Range
+    Set FoundRate = Sheets(sheetName).Rows("1:1").Find("R", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Dim rateRange As Range
+    Set rateRange = Range(Chr(FoundRate.Column + 64) & "2:" & Chr(FoundRate.Column + 64) & lastrow)
+    rateRange.Value = InputBox("請輸入匯率")
+    
 End Sub
+
+
 
 
 
