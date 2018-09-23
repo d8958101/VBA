@@ -72,7 +72,7 @@ Sub 整合()
     Sheets(sheetName).Columns(FoundDate.Column).Select
     Selection.Value = Selection.Value
     Sheets(sheetName).Columns(FoundDate.Column).NumberFormat = "dd-mmm-yy"
-    
+     
     '設定Ordered Amt(K/NTD)欄位的公式：
     'Ordered Amt(K/NTD) = Unit Price(NTD) * Ordered Qty(K)
     '找出欄位Ordered Amt(K/NTD)
@@ -102,6 +102,12 @@ Sub 整合()
     lastrow = Sheets(sheetName).Cells(Rows.Count, FoundScheduleShipDate.Column).End(xlUp).Row
     Sheets(sheetName).Range(Chr(FoundOrderAmtKNTD.Column + 64) & "2:" & Chr(FoundOrderAmtKNTD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPriceNTD.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
+    
+    '順便設定欄位 Pull In、Push Out(依Request Date) 的粗體以及紅色文字
+    Sheets(sheetName).Range(Chr(FoundDate.Column + 64) & "2:" & Chr(FoundDate.Column + 64) & lastrow).Font.Bold = True
+    Sheets(sheetName).Range(Chr(FoundDate.Column + 64) & "2:" & Chr(FoundDate.Column + 64) & lastrow).Font.Color = vbRed
+   
+    
     
     '排序Ordered Date, Schedule Ship Date, Request Date, Product_no
     '這4個欄位的range先找出來
@@ -298,6 +304,8 @@ Sub 整合()
     rateRange.Value = InputBox("請輸入匯率")
     
 End Sub
+
+
 
 
 
