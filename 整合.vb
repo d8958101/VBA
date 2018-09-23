@@ -303,7 +303,16 @@ Sub 整合()
     Set rateRange = Range(Chr(FoundRate.Column + 64) & "2:" & Chr(FoundRate.Column + 64) & lastrow)
     rateRange.Value = InputBox("請輸入匯率")
     
+    '設定Unit Price(NTD)公式:(UNIT PRICE)*(RATE)
+    Dim FoundUnitPrice As Range
+    Set FoundUnitPrice = Sheets(sheetName).Rows("1:1").Find("Unit Price", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    lastrow = Sheets(sheetName).Cells(Rows.Count, FoundUnitPrice.Column).End(xlUp).Row
+    Sheets(sheetName).Range(Chr(FoundUnitPriceNTD.Column + 64) & "2:" & Chr(FoundUnitPriceNTD.Column + 64) & lastrow).Formula = _
+    "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundRate.Column + 64) & "2"
+    
 End Sub
+
+
 
 
 
