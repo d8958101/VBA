@@ -332,7 +332,7 @@ Sub 整合()
     設定群組 "R", "R"
     設定群組 "Fcst Nonship Qty", "月FCST"
     設定群組 "Sample End Customer", "Key Account"
-    設定群組 "Grouping Date", "Move Order_no"
+    設定群組 "Grouping Date", "Grouping Date"
     設定群組 "Split Flag", "Order Status"
     設定群組 "Subinventory", "PC Remark"
     設定群組 "Shipping Method", "Shipping Method"
