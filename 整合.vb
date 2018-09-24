@@ -327,5 +327,41 @@ Sub 整合()
     Sheets(sheetName).Range(Chr(FoundOrderAmtUSD.Column + 64) & "2:" & Chr(FoundOrderAmtUSD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
     
+	設定群組 "Territory", "Customer Name"
+    設定群組 "Currency", "Currency"
+    設定群組 "R", "R"
+    設定群組 "Fcst Nonship Qty", "月FCST"
+    設定群組 "Sample End Customer", "Key Account"
+    設定群組 "Grouping Date", "Move Order_no"
+    設定群組 "Split Flag", "Order Status"
+    設定群組 "Subinventory", "PC Remark"
+    設定群組 "Shipping Method", "Shipping Method"
+	
 End Sub
+
+Sub 設定群組(startHeader As String, endHeader As String)
+    Dim FoundStart As Range
+    '找出某某欄位
+    Set FoundStart = Sheets("BEFORE").Rows("1:1").Find(startHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Dim FoundEnd As Range
+    '找出某某欄位
+    Set FoundEnd = Sheets("BEFORE").Rows("1:1").Find(endHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    
+    '設定群組
+    Sheets("BEFORE").Columns(Col_Letter(FoundStart.Column) & ":" & Col_Letter(FoundEnd.Column)).Columns.Group
+    
+End Sub
+
+
+'轉換column index為英文letter
+Function Col_Letter(lngCol As Long) As String
+    Dim vArr
+    vArr = Split(Cells(1, lngCol).Address(True, False), "$")
+    Col_Letter = vArr(0)
+End Function
+
+
+
+
+
 
