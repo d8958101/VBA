@@ -310,25 +310,22 @@ Sub 整合()
     Sheets(sheetName).Range(Chr(FoundUnitPriceNTD.Column + 64) & "2:" & Chr(FoundUnitPriceNTD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundRate.Column + 64) & "2"
     
+    
+    '設定公式Ordered Qty(K) = (Ordered Qty) / 1000
+    Dim FoundOrderQty As Range
+    Set FoundOrderQty = Sheets(sheetName).Rows("1:1").Find("Ordered Qty", LookIn:=xlValues, _
+    LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    lastrow = Sheets(sheetName).Cells(Rows.Count, FoundOrderQty.Column).End(xlUp).Row
+    Sheets(sheetName).Range(Chr(FoundOrderedQtyK.Column + 64) & "2:" & Chr(FoundOrderedQtyK.Column + 64) & lastrow).Formula = _
+    "=$" & Chr(FoundOrderQty.Column + 64) & "2/1000"
+    
+    '設定公式Ordered Amt (K/USD) = (Unit Price)*(Ordered Qty(K))
+    Dim FoundOrderAmtUSD As Range
+    Set FoundOrderAmtUSD = Sheets(sheetName).Rows("1:1").Find("Ordered Amt(K/USD)", LookIn:=xlValues, _
+    LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    lastrow = Sheets(sheetName).Cells(Rows.Count, FoundUnitPrice.Column).End(xlUp).Row
+    Sheets(sheetName).Range(Chr(FoundOrderAmtUSD.Column + 64) & "2:" & Chr(FoundOrderAmtUSD.Column + 64) & lastrow).Formula = _
+    "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
+    
 End Sub
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
