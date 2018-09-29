@@ -10,7 +10,6 @@ Sub 整合()
     For i = LBound(InsertColumns) To UBound(InsertColumns)
         'Sheet1.Columns("A:A").Insert Shift:=xlToRight
         Sheets(sheetName).Columns("A:A").Insert Shift:=xlToRight
-        
         Sheets(sheetName).Cells(1, 1) = InsertColumns(i)
     Next
     
@@ -155,7 +154,7 @@ Sub 整合()
          .Apply
     End With
     
-    
+    Application.ScreenUpdating = False
     'vlook對照：if 處理中的sheet.Line ID == PD 102.Supplier So Shipment No
     'PD 102.Cust Name+Sales Name copy回 處理中的sheet.Customer+Sales
     
@@ -172,52 +171,85 @@ Sub 整合()
     Dim FoundBeforeSales As Range
     Set FoundBeforeSales = Sheets("BEFORE").Rows("1:1").Find("Sales", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     
-    
-    
-    '找出PD 102的Supplier So Shipment No
-    Dim FoundPD102Supplier As Range
-    Set FoundPD102Supplier = Sheets("PD 102").Rows("1:4").Find("Supplier So Shipment No", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-    
-    '找出PD 102的Cust Name
-    Dim FoundPD102CustName As Range
-    Set FoundPD102CustName = Sheets("PD 102").Rows("1:4").Find("Cust Name", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-   
-    '找出PD 102的Sales Name
-    Dim FoundPD102SalesName As Range
-    Set FoundPD102SalesName = Sheets("PD 102").Rows("1:4").Find("Sales Name", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-   
-    '開始逐筆檢查Line ID
-    ''找出Line ID的最後一筆
-    lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeLineID.Column).End(xlUp).Row
-    For i = 2 To lastrow
+    ''''''''''''''
+    Dim wkbPD102 As Workbook
+
+    Dim strPD102FileToOpen As String
+    strPD102FileToOpen = ""
+    '透過dialog視窗取得檔案名稱
+    strPD102FileToOpen = Application.GetOpenFilename _
+    (Title:="請選擇PD 102的檔案", _
+    FileFilter:="Excel Files *.xls* (*.xls*),")
         
-        Dim lineID As String
-        lineID = Sheets("BEFORE").Cells(i, FoundBeforeLineID.Column)
-        '到PD 102工作表跟Supplier So Shipment No欄位比對
-        lastrowPD102 = Sheets("PD 102").Cells(Rows.Count, FoundPD102Supplier.Column).End(xlUp).Row
-        Dim custNamePD102 As String
-        custNamePD102 = "N/A"
-        Dim salesNamePD102 As String
-        salesNamePD102 = "N/A"
+    If strPD102FileToOpen = "False" Then
+        MsgBox "選取PD 102檔案失敗！.", vbExclamation, "Sorry!"
+        Exit Sub
+    Else
+        Set wkbPD102 = Workbooks.Open(strPD102FileToOpen)
+        '找出PD 102的Supplier So Shipment No
+        Dim FoundPD102Supplier As Range
+        Set FoundPD102Supplier = wkbPD102.Sheets("page").Rows("1:1").Find("Supplier So Shipment No", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+  
+        '找出PD 102的Cust Name
+        Dim FoundPD102CustName As Range
+        Set FoundPD102CustName = wkbPD102.Sheets("page").Rows("1:1").Find("Cust Name", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
         
-        For ii = 5 To lastrowPD102
-            Dim compareValue As String
-            compareValue = Sheets("PD 102").Cells(ii, FoundPD102Supplier.Column)
-            If lineID = compareValue Then
-                '順利比對到key值的時候, 就要複製回去處理中的工作表
-                custNamePD102 = Sheets("PD 102").Cells(ii, FoundPD102CustName.Column)
-                salesNamePD102 = Sheets("PD 102").Cells(ii, FoundPD102SalesName.Column)
-                                
-                Exit For
-            End If
+        '找出PD 102的Sales Name
+        Dim FoundPD102SalesName As Range
+        Set FoundPD102SalesName = wkbPD102.Sheets("page").Rows("1:1").Find("Sales Name", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        
+        '開始逐筆檢查Line ID
+        ''找出Line ID的最後一筆
+        ThisWorkbook.Activate
+        Worksheets("BEFORE").Activate
+        lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeLineID.Column).End(xlUp).Row
+        For i = 2 To lastrow
+            
+            Dim lineID As String
+            lineID = Sheets("BEFORE").Cells(i, FoundBeforeLineID.Column)
+            '到PD 102工作表跟Supplier So Shipment No欄位比對
+            wkbPD102.Activate
+            Worksheets("page").Activate
+            lastrowPD102 = wkbPD102.Sheets("page").Cells(Rows.Count, FoundPD102Supplier.Column).End(xlUp).Row
+            Dim custNamePD102 As String
+            custNamePD102 = "N/A"
+            Dim salesNamePD102 As String
+            salesNamePD102 = "N/A"
+            
+            For ii = 5 To lastrowPD102
+                Dim compareValue As String
+                compareValue = wkbPD102.Sheets("page").Cells(ii, FoundPD102Supplier.Column)
+                If lineID = compareValue Then
+                    '順利比對到key值的時候, 就要複製回去處理中的工作表
+                    custNamePD102 = wkbPD102.Sheets("page").Cells(ii, FoundPD102CustName.Column)
+                    salesNamePD102 = wkbPD102.Sheets("page").Cells(ii, FoundPD102SalesName.Column)
+                                    
+                    Exit For
+                End If
+                
+            Next
+            ThisWorkbook.Activate
+            Worksheets("BEFORE").Activate
+            Sheets("BEFORE").Cells(i, FoundBeforeCustomer.Column) = custNamePD102
+            Sheets("BEFORE").Cells(i, FoundBeforeSales.Column) = salesNamePD102
+            
             
         Next
-                
-        Sheets("BEFORE").Cells(i, FoundBeforeCustomer.Column) = custNamePD102
-        Sheets("BEFORE").Cells(i, FoundBeforeSales.Column) = salesNamePD102
         
-        
-    Next
+        '關閉檔案
+        wkbPD102.Activate
+        Worksheets("page").Activate
+        wkbPD102.Close SaveChanges:=False
+    End If
+    
+    '''''''''''''''
+    ThisWorkbook.Activate
+    Worksheets("BEFORE").Activate
+    Application.ScreenUpdating = True
+      
+       
+       
+    
     
     
     'vlook對照：if 處理中的sheet.Product_no == AIT PN處理後.Product_no (處理前)
@@ -327,7 +359,7 @@ Sub 整合()
     Sheets(sheetName).Range(Chr(FoundOrderAmtUSD.Column + 64) & "2:" & Chr(FoundOrderAmtUSD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
     
-	設定群組 "Territory", "Customer Name"
+    設定群組 "Territory", "Customer Name"
     設定群組 "Currency", "Currency"
     設定群組 "R", "R"
     設定群組 "Fcst Nonship Qty", "月FCST"
@@ -336,7 +368,7 @@ Sub 整合()
     設定群組 "Split Flag", "Order Status"
     設定群組 "Subinventory", "PC Remark"
     設定群組 "Shipping Method", "Shipping Method"
-	
+    
 End Sub
 
 Sub 設定群組(startHeader As String, endHeader As String)
@@ -350,12 +382,12 @@ Sub 設定群組(startHeader As String, endHeader As String)
     '設定群組
     Sheets("BEFORE").Columns(Col_Letter(FoundStart.Column) & ":" & Col_Letter(FoundEnd.Column)).Columns.Group
     
-	'凍結窗格：凍結第一個row以及凍結8個column
-	With ActiveWindow
-	 .SplitColumn = 8
-	 .SplitRow = 1
-	 .FreezePanes = True
-	End With
+    '凍結窗格：凍結第一個row以及凍結8個column
+    With ActiveWindow
+     .SplitColumn = 8
+     .SplitRow = 1
+     .FreezePanes = True
+    End With
 End Sub
 
 
@@ -365,6 +397,20 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
