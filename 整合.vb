@@ -1,12 +1,12 @@
 Sub 整合()
     Dim sheetName As String
-    sheetName = "BEFORE"
+    sheetName = "ExportShipPlan"
     Worksheets(sheetName).Activate
     '先新增欄位
     Dim InsertColumns As Variant
     InsertColumns = Array("Grade", "Customer", "Sales", "Pull In、Push Out(依Request Date)", "HUB", _
     "AIT P/N", "R", "Unit Price(NTD)", "Ordered Qty(K)", "Ordered Amt(K/NTD)", "Ordered Amt(K/USD)", _
-    "本月已開發票QTY(K)", "月FCST", "月FCST", "月FCST", "月FCST", "月FCST", "月FCST", "BKG")
+    "本月已開發票QTY(K)", "月FCST", "月FCST", "月FCST", "月FCST", "月FCST", "月FCST")
     For i = LBound(InsertColumns) To UBound(InsertColumns)
         'Sheet1.Columns("A:A").Insert Shift:=xlToRight
         Sheets(sheetName).Columns("A:A").Insert Shift:=xlToRight
@@ -32,7 +32,6 @@ Sub 整合()
     '執行巨集之前，先把畫面更新關掉，可以比較快速跑完巨集，不過資料量不大
     '的時候，也沒必要就是了，記得程式碼的最後要把他再打開
     Application.ScreenUpdating = False
-       
     For ndx = LBound(ColumnOrder) To UBound(ColumnOrder)
         '從左上角Rows("1:1")開始尋找，找字串ColumnOrder(ndx)，找儲存格的數值符合的LookIn:=xlValues
         '一字不漏比對value相同LookAt:=xlWhole，一個column一個column的順序去找SearchOrder:=xlByColumns
@@ -61,8 +60,8 @@ Sub 整合()
     '開啟畫面上的資料的更新
     Application.ScreenUpdating = True
     
+    Application.ScreenUpdating = False
     '設定某某欄位的日期格式dd-mmm-yy
-    
     Dim FoundDate As Range
     '找出某某欄位
     Set FoundDate = Sheets(sheetName).Rows("1:1").Find("Pull In、Push Out(依Request Date)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
@@ -71,7 +70,9 @@ Sub 整合()
     Sheets(sheetName).Columns(FoundDate.Column).Select
     Selection.Value = Selection.Value
     Sheets(sheetName).Columns(FoundDate.Column).NumberFormat = "dd-mmm-yy"
+    Application.ScreenUpdating = True
      
+    Application.ScreenUpdating = False
     '設定Ordered Amt(K/NTD)欄位的公式：
     'Ordered Amt(K/NTD) = Unit Price(NTD) * Ordered Qty(K)
     '找出欄位Ordered Amt(K/NTD)
@@ -105,9 +106,9 @@ Sub 整合()
     '順便設定欄位 Pull In、Push Out(依Request Date) 的粗體以及紅色文字
     Sheets(sheetName).Range(Chr(FoundDate.Column + 64) & "2:" & Chr(FoundDate.Column + 64) & lastrow).Font.Bold = True
     Sheets(sheetName).Range(Chr(FoundDate.Column + 64) & "2:" & Chr(FoundDate.Column + 64) & lastrow).Font.Color = vbRed
-   
+    Application.ScreenUpdating = True
     
-    
+    Application.ScreenUpdating = False
     '排序Ordered Date, Schedule Ship Date, Request Date, Product_no
     '這4個欄位的range先找出來
     Dim FoundOrderedDate As Range
@@ -153,23 +154,24 @@ Sub 整合()
          .Header = xlYes
          .Apply
     End With
+    Application.ScreenUpdating = True
+    
     
     Application.ScreenUpdating = False
     'vlook對照：if 處理中的sheet.Line ID == PD 102.Supplier So Shipment No
     'PD 102.Cust Name+Sales Name copy回 處理中的sheet.Customer+Sales
-    
     '找出處理中的sheet的Line ID欄位
     Dim FoundBeforeLineID As Range
-    Set FoundBeforeLineID = Sheets("BEFORE").Rows("1:1").Find("Line ID", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeLineID = Sheets(sheetName).Rows("1:1").Find("Line ID", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     
     '找出處理中的sheet的Customer欄位
     Dim FoundBeforeCustomer As Range
     '找出某某欄位
-    Set FoundBeforeCustomer = Sheets("BEFORE").Rows("1:1").Find("Customer", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeCustomer = Sheets(sheetName).Rows("1:1").Find("Customer", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     
     '找出處理中的sheet的Sales欄位
     Dim FoundBeforeSales As Range
-    Set FoundBeforeSales = Sheets("BEFORE").Rows("1:1").Find("Sales", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeSales = Sheets(sheetName).Rows("1:1").Find("Sales", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     
     ''''''''''''''
     Dim wkbPD102 As Workbook
@@ -201,12 +203,12 @@ Sub 整合()
         '開始逐筆檢查Line ID
         ''找出Line ID的最後一筆
         ThisWorkbook.Activate
-        Worksheets("BEFORE").Activate
-        lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeLineID.Column).End(xlUp).Row
+        Worksheets(sheetName).Activate
+        lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeLineID.Column).End(xlUp).Row
         For i = 2 To lastrow
             
             Dim lineID As String
-            lineID = Sheets("BEFORE").Cells(i, FoundBeforeLineID.Column)
+            lineID = Sheets(sheetName).Cells(i, FoundBeforeLineID.Column)
             '到PD 102工作表跟Supplier So Shipment No欄位比對
             wkbPD102.Activate
             Worksheets("page").Activate
@@ -216,7 +218,7 @@ Sub 整合()
             Dim salesNamePD102 As String
             salesNamePD102 = "N/A"
             
-            For ii = 5 To lastrowPD102
+            For ii = 2 To lastrowPD102
                 Dim compareValue As String
                 compareValue = wkbPD102.Sheets("page").Cells(ii, FoundPD102Supplier.Column)
                 If lineID = compareValue Then
@@ -229,9 +231,9 @@ Sub 整合()
                 
             Next
             ThisWorkbook.Activate
-            Worksheets("BEFORE").Activate
-            Sheets("BEFORE").Cells(i, FoundBeforeCustomer.Column) = custNamePD102
-            Sheets("BEFORE").Cells(i, FoundBeforeSales.Column) = salesNamePD102
+            Worksheets(sheetName).Activate
+            Sheets(sheetName).Cells(i, FoundBeforeCustomer.Column) = custNamePD102
+            Sheets(sheetName).Cells(i, FoundBeforeSales.Column) = salesNamePD102
             
             
         Next
@@ -244,21 +246,21 @@ Sub 整合()
     
     '''''''''''''''
     ThisWorkbook.Activate
-    Worksheets("BEFORE").Activate
+    Worksheets(sheetName).Activate
     Application.ScreenUpdating = True
       
        
        
     
     
-    
+    Application.ScreenUpdating = False
     'vlook對照：if 處理中的sheet.Product_no == AIT PN處理後.Product_no (處理前)
     'AIT PN處理後.AIT P/N (處理後) copy回 處理中的sheet.AIT P/N
     Dim FoundBeforeProductNo As Range
-    Set FoundBeforeProductNo = Sheets("BEFORE").Rows("1:1").Find("Product_no", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeProductNo = Sheets(sheetName).Rows("1:1").Find("Product_no", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
 
     Dim FoundBeforeAITPin As Range
-    Set FoundBeforeAITPin = Sheets("BEFORE").Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeAITPin = Sheets(sheetName).Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
 
 
     Dim FoundMappingProductNo As Range
@@ -267,10 +269,10 @@ Sub 整合()
     Dim FoundMappingAITPin As Range
     Set FoundMappingAITPin = Sheets("AIT PN處理後").Rows("1:1").Find("AIT P/N (處理後)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
 
-    lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
+    lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
     For i = 2 To lastrow
         Dim productNo As String
-        productNo = Sheets("BEFORE").Cells(i, FoundBeforeProductNo.Column)
+        productNo = Sheets(sheetName).Cells(i, FoundBeforeProductNo.Column)
         lastrowMapping = Sheets("AIT PN處理後").Cells(Rows.Count, FoundMappingProductNo.Column).End(xlUp).Row
         Dim aitPinMapping As String
         aitPinMapping = "N/A"
@@ -284,49 +286,81 @@ Sub 整合()
             End If
         Next
         '複製回去處理中的工作表
-        Sheets("BEFORE").Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
+        Sheets(sheetName).Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
     
         
     Next
+    Application.ScreenUpdating = True
     
     
-    
+    Application.ScreenUpdating = False
     'vlook對照：if WorkingSheet.AIT P/N == AC.AIT PN
     'AC.Oracle Attribute copy到 WorkingSheet.Grade
     Dim FoundBeforeGrade As Range
-    Set FoundBeforeGrade = Sheets("BEFORE").Rows("1:1").Find("Grade", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundBeforeGrade = Sheets(sheetName).Rows("1:1").Find("Grade", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
         
-    Dim FoundACAITPin As Range
-    Set FoundACAITPin = Sheets("AC").Rows("1:1").Find("AIT PN", LookIn:=xlValues, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-    
-    Dim FoundACOracle As Range
-    Set FoundACOracle = Sheets("AC").Rows("1:1").Find("Oracle Attribute", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-    
-    '開始逐筆檢查WorkingSheet.AIT P/N
-    ''找出AIT P/N的最後一筆
-    lastrow = Sheets("BEFORE").Cells(Rows.Count, FoundBeforeAITPin.Column).End(xlUp).Row
-    For i = 2 To lastrow
-        Dim workingAITPin As String
-        workingAITPin = Sheets("BEFORE").Cells(i, FoundBeforeAITPin.Column)
-        lastrowAC = Sheets("AC").Cells(Rows.Count, FoundACAITPin.Column).End(xlUp).Row
-        Dim oracleAC As String
-        oracleAC = "N/A"
-        For ii = 2 To lastrowAC
-            Dim compareAITPin As String
-            compareAITPin = Sheets("AC").Cells(ii, FoundACAITPin.Column)
-            If workingAITPin = compareAITPin Then
-                '順利比對到key值的時候, 就要複製回去處理中的工作表
-                oracleAC = Sheets("AC").Cells(ii, FoundACOracle.Column)
-                                            
-                Exit For
-            End If
+    '開啟AC檔案
+    Dim wkbAC As Workbook
+
+    Dim strACFileToOpen As String
+    strACFileToOpen = ""
+    '透過dialog視窗取得檔案名稱
+    strACFileToOpen = Application.GetOpenFilename _
+    (Title:="請選擇AC的檔案", _
+    FileFilter:="Excel Files *.xls* (*.xls*),")
+        
+    If strACFileToOpen = "False" Then
+        MsgBox "選取AC檔案失敗！.", vbExclamation, "Sorry!"
+        Exit Sub
+    Else
+        Set wkbAC = Workbooks.Open(strACFileToOpen)
+        Dim FoundACAITPin As Range
+        Set FoundACAITPin = Sheets(1).Rows("1:1").Find("AIT PN", LookIn:=xlValues, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+          
+        Dim FoundACOracle As Range
+        Set FoundACOracle = Sheets(1).Rows("1:1").Find("Oracle Attribute", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        
+        '開始逐筆檢查WorkingSheet.AIT P/N
+        ''找出AIT P/N的最後一筆
+        ThisWorkbook.Activate
+        Worksheets(sheetName).Activate
+        lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeAITPin.Column).End(xlUp).Row
+        For i = 2 To lastrow
+            Dim workingAITPin As String
+            workingAITPin = Sheets(sheetName).Cells(i, FoundBeforeAITPin.Column)
+            wkbAC.Activate
+            Worksheets(1).Activate
+            lastrowAC = Sheets(1).Cells(Rows.Count, FoundACAITPin.Column).End(xlUp).Row
+            Dim oracleAC As String
+            oracleAC = "N/A"
+            For ii = 2 To lastrowAC
+                Dim compareAITPin As String
+                compareAITPin = Sheets(1).Cells(ii, FoundACAITPin.Column)
+                If workingAITPin = compareAITPin Then
+                    '順利比對到key值的時候, 就要複製回去處理中的工作表
+                    oracleAC = Sheets(1).Cells(ii, FoundACOracle.Column)
+                                                
+                    Exit For
+                End If
+                
+            Next
+            ThisWorkbook.Activate
+            Worksheets(sheetName).Activate
+            Sheets(sheetName).Cells(i, FoundBeforeGrade.Column) = oracleAC
+            
             
         Next
-                
-        Sheets("BEFORE").Cells(i, FoundBeforeGrade.Column) = oracleAC
-        
-        
-    Next
+                    
+        wkbAC.Activate
+        Worksheets(1).Activate
+        wkbAC.Close SaveChanges:=False
+    End If
+    '''''''''''''''
+    ThisWorkbook.Activate
+    Worksheets(sheetName).Activate
+    Application.ScreenUpdating = True
+    
+    
     
     '透過inputbox輸入匯率
     Dim FoundRate As Range
@@ -359,28 +393,28 @@ Sub 整合()
     Sheets(sheetName).Range(Chr(FoundOrderAmtUSD.Column + 64) & "2:" & Chr(FoundOrderAmtUSD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
     
-    設定群組 "Territory", "Customer Name"
-    設定群組 "Currency", "Currency"
-    設定群組 "R", "R"
-    設定群組 "Fcst Nonship Qty", "月FCST"
-    設定群組 "Sample End Customer", "Key Account"
-    設定群組 "Grouping Date", "Grouping Date"
-    設定群組 "Split Flag", "Order Status"
-    設定群組 "Subinventory", "PC Remark"
-    設定群組 "Shipping Method", "Shipping Method"
+    設定群組 sheetName, "Territory", "Customer Name"
+    設定群組 sheetName, "Currency", "Currency"
+    設定群組 sheetName, "R", "R"
+    設定群組 sheetName, "Fcst Nonship Qty", "月FCST"
+    設定群組 sheetName, "Sample End Customer", "Key Account"
+    設定群組 sheetName, "Grouping Date", "Grouping Date"
+    設定群組 sheetName, "Split Flag", "Order Status"
+    設定群組 sheetName, "Subinventory", "PC Remark"
+    設定群組 sheetName, "Shipping Method", "Shipping Method"
     
 End Sub
 
-Sub 設定群組(startHeader As String, endHeader As String)
+Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
     Dim FoundStart As Range
     '找出某某欄位
-    Set FoundStart = Sheets("BEFORE").Rows("1:1").Find(startHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundStart = Sheets(sheetName).Rows("1:1").Find(startHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     Dim FoundEnd As Range
     '找出某某欄位
-    Set FoundEnd = Sheets("BEFORE").Rows("1:1").Find(endHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    Set FoundEnd = Sheets(sheetName).Rows("1:1").Find(endHeader, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
     
     '設定群組
-    Sheets("BEFORE").Columns(Col_Letter(FoundStart.Column) & ":" & Col_Letter(FoundEnd.Column)).Columns.Group
+    Sheets(sheetName).Columns(Col_Letter(FoundStart.Column) & ":" & Col_Letter(FoundEnd.Column)).Columns.Group
     
     '凍結窗格：凍結第一個row以及凍結8個column
     With ActiveWindow
