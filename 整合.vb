@@ -262,35 +262,64 @@ Sub 整合()
     Dim FoundBeforeAITPin As Range
     Set FoundBeforeAITPin = Sheets(sheetName).Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
 
-
-    Dim FoundMappingProductNo As Range
-    Set FoundMappingProductNo = Sheets("AIT PN處理後").Rows("1:1").Find("Product_no (處理前)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-
-    Dim FoundMappingAITPin As Range
-    Set FoundMappingAITPin = Sheets("AIT PN處理後").Rows("1:1").Find("AIT P/N (處理後)", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-
-    lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
-    For i = 2 To lastrow
-        Dim productNo As String
-        productNo = Sheets(sheetName).Cells(i, FoundBeforeProductNo.Column)
-        lastrowMapping = Sheets("AIT PN處理後").Cells(Rows.Count, FoundMappingProductNo.Column).End(xlUp).Row
-        Dim aitPinMapping As String
-        aitPinMapping = "N/A"
-        For ii = 2 To lastrowMapping
-            Dim compareProductNo As String
-            compareProductNo = Sheets("AIT PN處理後").Cells(ii, FoundMappingProductNo.Column)
-            If productNo = compareProductNo Then
-                '順利比對到key值的時候, 就要複製回去處理中的工作表
-                aitPinMapping = Sheets("AIT PN處理後").Cells(ii, FoundMappingAITPin.Column)
-                Exit For
-            End If
-        Next
-        '複製回去處理中的工作表
-        Sheets(sheetName).Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
-    
+    '開啟料號對照表
+    Dim wkbMapping As Workbook
+    Dim strMappingFileToOpen As String
+    strMappingFileToOpen = ""
+    '透過dialog視窗取得檔案名稱
+    strMappingFileToOpen = Application.GetOpenFilename _
+    (Title:="請選擇 料號對照表 的檔案", _
+    FileFilter:="Excel Files *.xls* (*.xls*),")
         
-    Next
+    If strMappingFileToOpen = "False" Then
+        MsgBox "選取 料號對照表 檔案失敗！.", vbExclamation, "Sorry!"
+        Exit Sub
+    Else
+        Set wkbMapping = Workbooks.Open(strMappingFileToOpen)
+        Dim FoundMappingProductNo As Range
+        Set FoundMappingProductNo = Sheets(1).Rows("1:1").Find("Product_no", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    
+        Dim FoundMappingAITPin As Range
+        Set FoundMappingAITPin = Sheets(1).Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        
+        ThisWorkbook.Activate
+        Worksheets(sheetName).Activate
+        lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
+        For i = 2 To lastrow
+            Dim productNo As String
+            productNo = Sheets(sheetName).Cells(i, FoundBeforeProductNo.Column)
+            wkbMapping.Activate
+            Worksheets(1).Activate
+            lastrowMapping = Sheets(1).Cells(Rows.Count, FoundMappingProductNo.Column).End(xlUp).Row
+            Dim aitPinMapping As String
+            aitPinMapping = "N/A"
+            For ii = 2 To lastrowMapping
+                Dim compareProductNo As String
+                compareProductNo = Sheets(1).Cells(ii, FoundMappingProductNo.Column)
+                If productNo = compareProductNo Then
+                    '順利比對到key值的時候, 就要複製回去處理中的工作表
+                    aitPinMapping = Sheets(1).Cells(ii, FoundMappingAITPin.Column)
+                    Exit For
+                End If
+            Next
+            '複製回去處理中的工作表
+            ThisWorkbook.Activate
+            Worksheets(sheetName).Activate
+            Sheets(sheetName).Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
+        
+            
+        Next
+                
+        wkbMapping.Activate
+        Worksheets(1).Activate
+        wkbMapping.Close SaveChanges:=False
+    End If
+    '''''''''''''''''''''
+    ThisWorkbook.Activate
+    Worksheets(sheetName).Activate
     Application.ScreenUpdating = True
+    
+    
     
     
     Application.ScreenUpdating = False
@@ -393,6 +422,7 @@ Sub 整合()
     Sheets(sheetName).Range(Chr(FoundOrderAmtUSD.Column + 64) & "2:" & Chr(FoundOrderAmtUSD.Column + 64) & lastrow).Formula = _
     "=$" & Chr(FoundUnitPrice.Column + 64) & "2*$" & Chr(FoundOrderedQtyK.Column + 64) & "2"
     
+    Application.ScreenUpdating = False
     設定群組 sheetName, "Territory", "Customer Name"
     設定群組 sheetName, "Currency", "Currency"
     設定群組 sheetName, "R", "R"
@@ -402,6 +432,7 @@ Sub 整合()
     設定群組 sheetName, "Split Flag", "Order Status"
     設定群組 sheetName, "Subinventory", "PC Remark"
     設定群組 sheetName, "Shipping Method", "Shipping Method"
+    Application.ScreenUpdating = True
     
 End Sub
 
@@ -431,6 +462,8 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
 
 
 
