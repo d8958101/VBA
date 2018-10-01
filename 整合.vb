@@ -432,6 +432,13 @@ Sub 整合()
     設定群組 sheetName, "Split Flag", "Order Status"
     設定群組 sheetName, "Subinventory", "PC Remark"
     設定群組 sheetName, "Shipping Method", "Shipping Method"
+	
+	'凍結窗格：凍結第一個row以及凍結8個column
+    With ActiveWindow
+     .SplitColumn = 8
+     .SplitRow = 1
+     .FreezePanes = True
+    End With
     Application.ScreenUpdating = True
     
 End Sub
@@ -447,12 +454,7 @@ Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
     '設定群組
     Sheets(sheetName).Columns(Col_Letter(FoundStart.Column) & ":" & Col_Letter(FoundEnd.Column)).Columns.Group
     
-    '凍結窗格：凍結第一個row以及凍結8個column
-    With ActiveWindow
-     .SplitColumn = 8
-     .SplitRow = 1
-     .FreezePanes = True
-    End With
+    
 End Sub
 
 
