@@ -435,14 +435,13 @@ Sub 整合()
     設定群組 sheetName, "Split Flag", "Order Status"
     設定群組 sheetName, "Subinventory", "PC Remark"
     設定群組 sheetName, "Shipping Method", "Shipping Method"
+        
     
-    '凍結窗格：凍結第一個row以及凍結8個column
-    'With ActiveWindow
-    ' .SplitColumn = 8
-    ' .SplitRow = 1
-    ' .FreezePanes = True
-    'End With
     Application.ScreenUpdating = True
+	'這樣就會凍結第1個 Row以及ABCDEFGH column
+    ActiveWindow.FreezePanes = False
+    Range("I2").Select
+    ActiveWindow.FreezePanes = True
     
 End Sub
 
