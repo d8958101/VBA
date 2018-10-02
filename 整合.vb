@@ -134,7 +134,9 @@ Sub 整合()
     '把Product_no的格式轉成文字，不然使用排序功能會有問題(儲存格若是通用格式無法排序)
     Sheets(sheetName).Columns(FoundProductNo.Column).NumberFormat = "@"
     
-                
+    '排序到最後一個column
+    Dim lastColumn As Long
+    lastColumn = Cells(1, Columns.Count).End(xlToLeft).Column
     With ActiveSheet.Sort
         '要排序的第一個欄位, 要排序A欄位的話，就寫A1
         'Order：xlAscending表示排序遞增，xlDecending表示排序遞減
@@ -149,7 +151,8 @@ Sub 整合()
          '.SetRange Range("A1:C13")
          '下面這個是活用的寫法，Excel的資料筆數通常是不固定，這樣寫最建議！
          '.SetRange Sheets(sheetName).Range(Chr(FoundScheduleShipDate.Column + 64) & "1:" & Chr(FoundProductNo.Column + 64) & lastrow)
-         .SetRange Sheets(sheetName).Range(Chr(FoundScheduleShipDate.Column + 64) & "1:" & Chr(FoundProductNo.Column + 64) & lastrow)
+         '.SetRange Sheets(sheetName).Range(Chr(FoundScheduleShipDate.Column + 64) & "1:" & Chr(FoundProductNo.Column + 64) & lastrow)
+         .SetRange Sheets(sheetName).Range("A1:" & Col_Letter(lastColumn) & lastrow)
          '資料是否包含標頭
          .Header = xlYes
          .Apply
@@ -432,13 +435,13 @@ Sub 整合()
     設定群組 sheetName, "Split Flag", "Order Status"
     設定群組 sheetName, "Subinventory", "PC Remark"
     設定群組 sheetName, "Shipping Method", "Shipping Method"
-	
-	'凍結窗格：凍結第一個row以及凍結8個column
-    With ActiveWindow
-     .SplitColumn = 8
-     .SplitRow = 1
-     .FreezePanes = True
-    End With
+    
+    '凍結窗格：凍結第一個row以及凍結8個column
+    'With ActiveWindow
+    ' .SplitColumn = 8
+    ' .SplitRow = 1
+    ' .FreezePanes = True
+    'End With
     Application.ScreenUpdating = True
     
 End Sub
@@ -464,6 +467,8 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
 
 
 
