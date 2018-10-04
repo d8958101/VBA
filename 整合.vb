@@ -443,6 +443,30 @@ Sub 整合()
     Range("I2").Select
     ActiveWindow.FreezePanes = True
     
+	'設定欄位置左、置中、置右
+	Dim ColumnAlignLeft As Variant, index As Integer
+	Dim FoundColumns As Range
+		ColumnAlignLeft = Array("Grade", "Customer", "Schedule Ship Date", "Request Date", "Ordered Date", _
+		"Territory", "Pre Sch Ship Date", "Customer Name", "AIT P/N", "Product_no", "Package Type", "Currency", _
+		"Order Status", "LATEST_UPDATED_FLAG", "Hold Reason", "Application Field", "Schedule Change Date", _
+		"Planner Remark", "Sale Person", "Shipping Method", "SA Planner")
+
+	Application.ScreenUpdating = False
+	For index = LBound(ColumnAlignLeft) To UBound(ColumnAlignLeft)
+		Set FoundColumns = Rows("1:1").Find(ColumnAlignLeft(index), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+		If Not FoundColumns Is Nothing Then
+			Dim columnEng As String
+			columnEng = Col_Letter(FoundColumns.Column)
+			'該欄位所有資料(包括header)置左
+			Columns(columnEng & ":" & columnEng).HorizontalAlignment = xlLeft
+			'表頭另外設定(header一般都是置中)
+			Range(columnEng & "1").HorizontalAlignment = xlLeft
+		
+		End If
+	Next index
+	Application.ScreenUpdating = True
+	
+	
 End Sub
 
 Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
