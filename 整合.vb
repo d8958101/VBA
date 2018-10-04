@@ -498,6 +498,8 @@ Sub 整合()
     
     Application.ScreenUpdating = True
     
+	'收合折疊群組
+	ActiveSheet.Outline.ShowLevels ColumnLevels:=1
     
 End Sub
 
