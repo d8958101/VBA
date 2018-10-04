@@ -438,35 +438,67 @@ Sub 整合()
         
     
     Application.ScreenUpdating = True
-	'這樣就會凍結第1個 Row以及ABCDEFGH column
+    '這樣就會凍結第1個 Row以及ABCDEFGH column
     ActiveWindow.FreezePanes = False
     Range("I2").Select
     ActiveWindow.FreezePanes = True
     
-	'設定欄位置左、置中、置右
-	Dim ColumnAlignLeft As Variant, index As Integer
-	Dim FoundColumns As Range
-		ColumnAlignLeft = Array("Grade", "Customer", "Schedule Ship Date", "Request Date", "Ordered Date", _
-		"Territory", "Pre Sch Ship Date", "Customer Name", "AIT P/N", "Product_no", "Package Type", "Currency", _
-		"Order Status", "LATEST_UPDATED_FLAG", "Hold Reason", "Application Field", "Schedule Change Date", _
-		"Planner Remark", "Sale Person", "Shipping Method", "SA Planner")
+    '設定欄位置左、置中、置右
+    Dim ColumnAlignLeft As Variant, ColumnAlignCenter As Variant, ColumnAlignRight As Variant, index As Integer
+    Dim FoundColumns As Range
+        ColumnAlignLeft = Array("Grade", "Customer", "Schedule Ship Date", "Request Date", "Ordered Date", "Ordered Date", _
+        "Territory", "Pre Sch Ship Date", "Customer Name", "AIT P/N", "Product_no", "Package Type", "Currency", _
+        "Order Status", "LATEST_UPDATED_FLAG", "Hold Reason", "Application Field", "Schedule Change Date", _
+        "Planner Remark", "Sale Person", "Shipping Method", "SA Planner")
+        
+        ColumnAlignCenter = Array("End Customer", "Customer PO", "Sample End Customer", "Order Number", "Line ID", "Line No.", _
+        "Cust Line No.", "Split Flag", "BKG")
+        
+        ColumnAlignRight = Array("Unit Price", "R", "Unit Price(NTD)", "Ordered Qty", "Ordered Qty(K)", _
+        "Ordered Amt(K/NTD)", "Ordered Amt(K/USD)")
 
-	Application.ScreenUpdating = False
-	For index = LBound(ColumnAlignLeft) To UBound(ColumnAlignLeft)
-		Set FoundColumns = Rows("1:1").Find(ColumnAlignLeft(index), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
-		If Not FoundColumns Is Nothing Then
-			Dim columnEng As String
-			columnEng = Col_Letter(FoundColumns.Column)
-			'該欄位所有資料(包括header)置左
-			Columns(columnEng & ":" & columnEng).HorizontalAlignment = xlLeft
-			'表頭另外設定(header一般都是置中)
-			Range(columnEng & "1").HorizontalAlignment = xlLeft
-		
-		End If
-	Next index
-	Application.ScreenUpdating = True
-	
-	
+    Application.ScreenUpdating = False
+    '置左
+    For index = LBound(ColumnAlignLeft) To UBound(ColumnAlignLeft)
+        Set FoundColumns = Rows("1:1").Find(ColumnAlignLeft(index), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        If Not FoundColumns Is Nothing Then
+            Dim columnEng As String
+            columnEng = Col_Letter(FoundColumns.Column)
+            '該欄位所有資料(包括header)置左
+            Columns(columnEng & ":" & columnEng).HorizontalAlignment = xlLeft
+            '表頭另外設定(header一般都是置中)
+            Range(columnEng & "1").HorizontalAlignment = xlLeft
+        
+        End If
+    Next index
+    
+    '置中
+    For index = LBound(ColumnAlignCenter) To UBound(ColumnAlignCenter)
+        Set FoundColumns = Rows("1:1").Find(ColumnAlignCenter(index), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        If Not FoundColumns Is Nothing Then
+            columnEng = Col_Letter(FoundColumns.Column)
+            Columns(columnEng & ":" & columnEng).HorizontalAlignment = xlCenter
+            Range(columnEng & "1").HorizontalAlignment = xlLeft
+        
+        End If
+    Next index
+    
+    '靠右
+    For index = LBound(ColumnAlignRight) To UBound(ColumnAlignRight)
+        Set FoundColumns = Rows("1:1").Find(ColumnAlignRight(index), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+        If Not FoundColumns Is Nothing Then
+            columnEng = Col_Letter(FoundColumns.Column)
+            '該欄位所有資料(包括header)置左
+            Columns(columnEng & ":" & columnEng).HorizontalAlignment = xlRight
+            '表頭另外設定(header一般都是置中)
+            Range(columnEng & "1").HorizontalAlignment = xlLeft
+        
+        End If
+    Next index
+    
+    Application.ScreenUpdating = True
+    
+    
 End Sub
 
 Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
@@ -490,6 +522,8 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+
 
 
 
