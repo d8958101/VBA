@@ -124,15 +124,24 @@ Sub 整合()
     '把欄位Ordered Date, Schedule Ship Date, Request Date重新給值一次，不然使用排序功能的話會有問題
     Sheets(sheetName).Columns(FoundOrderedDate.Column).Select
     Selection.Value = Selection.Value
+    '順便把Ordered Date格式也改成dd-mmm-yy
+    Sheets(sheetName).Columns(FoundOrderedDate.Column).NumberFormat = "dd-mmm-yy"
+    
     Sheets(sheetName).Columns(FoundScheduleShipDate.Column).Select
     Selection.Value = Selection.Value
+    '順便把Schedule Ship Date格式也改成dd-mmm-yy
+    Sheets(sheetName).Columns(FoundScheduleShipDate.Column).NumberFormat = "dd-mmm-yy"
+    
     Sheets(sheetName).Columns(FoundRequestDate.Column).Select
     Selection.Value = Selection.Value
+    '順便把Request Date格式也改成dd-mmm-yy
+    Sheets(sheetName).Columns(FoundRequestDate.Column).NumberFormat = "dd-mmm-yy"
     'Product_no也必須重新給值
     Sheets(sheetName).Columns(FoundProductNo.Column).Select
     Selection.Value = Selection.Value
     '把Product_no的格式轉成文字，不然使用排序功能會有問題(儲存格若是通用格式無法排序)
     Sheets(sheetName).Columns(FoundProductNo.Column).NumberFormat = "@"
+   
     
     '排序到最後一個column
     Dim lastColumn As Long
@@ -498,8 +507,8 @@ Sub 整合()
     
     Application.ScreenUpdating = True
     
-	'收合折疊群組
-	ActiveSheet.Outline.ShowLevels ColumnLevels:=1
+    '收合折疊群組
+    ActiveSheet.Outline.ShowLevels ColumnLevels:=1
     
 End Sub
 
@@ -524,29 +533,4 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
