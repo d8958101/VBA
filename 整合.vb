@@ -516,6 +516,8 @@ Sub 整合()
     設定小數點幾位 sheetName, "Ordered Amt(K/NTD)", 2
     設定小數點幾位 sheetName, "Ordered Amt(K/USD)", 2
     
+	設定千分號comma sheetName, "Ordered Qty"
+	
 End Sub
 
 Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
@@ -555,4 +557,18 @@ Sub 設定小數點幾位(sheetName As String, columnName As String, numberOfDigits As 
 
 End Sub
 
+Sub 設定千分號comma(sheetName As String, columnName As String)
+   
+    Dim FoundNumber As Range
+    'Unit Price小數點五位
+    Set FoundNumber = Sheets(sheetName).Rows("1:1").Find(columnName, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    '把這個欄位的value重新給一次，確保萬一不會出錯
+    Sheets(sheetName).Columns(FoundNumber.Column).Select
+    Selection.Value = Selection.Value
+    '千分號+小數點的話，格式設定成這樣
+    Sheets(sheetName).Columns(FoundNumber.Column).numberFormat = "#,##0.00"
+    '千分號且不要小數點話，格式設定成這樣
+    Sheets(sheetName).Columns(FoundNumber.Column).numberFormat = "#,##0"
+
+End Sub
 
