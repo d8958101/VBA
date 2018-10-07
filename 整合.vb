@@ -69,7 +69,7 @@ Sub 整合()
     'Sheets(sheetName).Columns(Chr(FoundDate.Column + 64)).Select
     Sheets(sheetName).Columns(FoundDate.Column).Select
     Selection.Value = Selection.Value
-    Sheets(sheetName).Columns(FoundDate.Column).NumberFormat = "dd-mmm-yy"
+    Sheets(sheetName).Columns(FoundDate.Column).numberFormat = "dd-mmm-yy"
     Application.ScreenUpdating = True
      
     Application.ScreenUpdating = False
@@ -125,22 +125,22 @@ Sub 整合()
     Sheets(sheetName).Columns(FoundOrderedDate.Column).Select
     Selection.Value = Selection.Value
     '順便把Ordered Date格式也改成dd-mmm-yy
-    Sheets(sheetName).Columns(FoundOrderedDate.Column).NumberFormat = "dd-mmm-yy"
+    Sheets(sheetName).Columns(FoundOrderedDate.Column).numberFormat = "dd-mmm-yy"
     
     Sheets(sheetName).Columns(FoundScheduleShipDate.Column).Select
     Selection.Value = Selection.Value
     '順便把Schedule Ship Date格式也改成dd-mmm-yy
-    Sheets(sheetName).Columns(FoundScheduleShipDate.Column).NumberFormat = "dd-mmm-yy"
+    Sheets(sheetName).Columns(FoundScheduleShipDate.Column).numberFormat = "dd-mmm-yy"
     
     Sheets(sheetName).Columns(FoundRequestDate.Column).Select
     Selection.Value = Selection.Value
     '順便把Request Date格式也改成dd-mmm-yy
-    Sheets(sheetName).Columns(FoundRequestDate.Column).NumberFormat = "dd-mmm-yy"
+    Sheets(sheetName).Columns(FoundRequestDate.Column).numberFormat = "dd-mmm-yy"
     'Product_no也必須重新給值
     Sheets(sheetName).Columns(FoundProductNo.Column).Select
     Selection.Value = Selection.Value
     '把Product_no的格式轉成文字，不然使用排序功能會有問題(儲存格若是通用格式無法排序)
-    Sheets(sheetName).Columns(FoundProductNo.Column).NumberFormat = "@"
+    Sheets(sheetName).Columns(FoundProductNo.Column).numberFormat = "@"
    
     
     '排序到最後一個column
@@ -510,6 +510,12 @@ Sub 整合()
     '收合折疊群組
     ActiveSheet.Outline.ShowLevels ColumnLevels:=1
     
+    設定小數點幾位 sheetName, "Unit Price", 5
+    設定小數點幾位 sheetName, "Unit Price(NTD)", 2
+    設定小數點幾位 sheetName, "Ordered Qty(K)", 2
+    設定小數點幾位 sheetName, "Ordered Amt(K/NTD)", 2
+    設定小數點幾位 sheetName, "Ordered Amt(K/USD)", 2
+    
 End Sub
 
 Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
@@ -533,4 +539,20 @@ Function Col_Letter(lngCol As Long) As String
     vArr = Split(Cells(1, lngCol).Address(True, False), "$")
     Col_Letter = vArr(0)
 End Function
+
+Sub 設定小數點幾位(sheetName As String, columnName As String, numberOfDigits As Integer)
+    '設定欄位格式小數點幾位
+    Dim FoundFloatingNumber As Range
+    'Unit Price小數點五位
+    Set FoundFloatingNumber = Sheets(sheetName).Rows("1:1").Find(columnName, LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
+    '把這個欄位的value重新給一次，確保萬一不會出錯
+    Sheets(sheetName).Columns(FoundFloatingNumber.Column).Select
+    Selection.Value = Selection.Value
+    Dim numberFormat As String
+    numberFormat = "0."
+    numberFormat = numberFormat & Replace(Space(numberOfDigits), " ", "0")
+    Sheets(sheetName).Columns(FoundFloatingNumber.Column).numberFormat = numberFormat
+
+End Sub
+
 
