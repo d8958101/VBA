@@ -1,4 +1,24 @@
 Sub 整合()
+    
+    '開啟原廠檔案
+    Dim wkbVendor As Workbook
+
+    Dim strVendorFileToOpen As String
+    strVendorFileToOpen = ""
+    '透過dialog視窗取得檔案名稱
+    strVendorFileToOpen = Application.GetOpenFilename _
+    (Title:="請選擇 原廠 的的檔案", _
+    FileFilter:="Excel Files *.xls* (*.xls*),")
+        
+    If strVendorFileToOpen = "False" Then
+        MsgBox "選取 原廠 的檔案失敗！.", vbExclamation, "Sorry!"
+        Exit Sub
+    Else
+        Set wkbVendor = Workbooks.Open(strVendorFileToOpen)
+        wkbVendor.Activate
+    End If
+    
+
     Dim sheetName As String
     sheetName = "ExportShipPlan"
     Worksheets(sheetName).Activate
@@ -214,7 +234,7 @@ Sub 整合()
         
         '開始逐筆檢查Line ID
         ''找出Line ID的最後一筆
-        ThisWorkbook.Activate
+        wkbVendor.Activate
         Worksheets(sheetName).Activate
         lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeLineID.Column).End(xlUp).Row
         For i = 2 To lastrow
@@ -242,7 +262,7 @@ Sub 整合()
                 End If
                 
             Next
-            ThisWorkbook.Activate
+            wkbVendor.Activate
             Worksheets(sheetName).Activate
             Sheets(sheetName).Cells(i, FoundBeforeCustomer.Column) = custNamePD102
             Sheets(sheetName).Cells(i, FoundBeforeSales.Column) = salesNamePD102
@@ -257,7 +277,7 @@ Sub 整合()
     End If
     
     '''''''''''''''
-    ThisWorkbook.Activate
+    wkbVendor.Activate
     Worksheets(sheetName).Activate
     Application.ScreenUpdating = True
       
@@ -294,7 +314,7 @@ Sub 整合()
         Dim FoundMappingAITPin As Range
         Set FoundMappingAITPin = Sheets(1).Rows("1:1").Find("AIT P/N", LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, MatchCase:=False)
         
-        ThisWorkbook.Activate
+        wkbVendor.Activate
         Worksheets(sheetName).Activate
         lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeProductNo.Column).End(xlUp).Row
         For i = 2 To lastrow
@@ -315,7 +335,7 @@ Sub 整合()
                 End If
             Next
             '複製回去處理中的工作表
-            ThisWorkbook.Activate
+            wkbVendor.Activate
             Worksheets(sheetName).Activate
             Sheets(sheetName).Cells(i, FoundBeforeAITPin.Column) = aitPinMapping
         
@@ -327,7 +347,7 @@ Sub 整合()
         wkbMapping.Close SaveChanges:=False
     End If
     '''''''''''''''''''''
-    ThisWorkbook.Activate
+    wkbVendor.Activate
     Worksheets(sheetName).Activate
     Application.ScreenUpdating = True
     
@@ -363,7 +383,7 @@ Sub 整合()
         
         '開始逐筆檢查WorkingSheet.AIT P/N
         ''找出AIT P/N的最後一筆
-        ThisWorkbook.Activate
+        wkbVendor.Activate
         Worksheets(sheetName).Activate
         lastrow = Sheets(sheetName).Cells(Rows.Count, FoundBeforeAITPin.Column).End(xlUp).Row
         For i = 2 To lastrow
@@ -385,7 +405,7 @@ Sub 整合()
                 End If
                 
             Next
-            ThisWorkbook.Activate
+            wkbVendor.Activate
             Worksheets(sheetName).Activate
             Sheets(sheetName).Cells(i, FoundBeforeGrade.Column) = oracleAC
             
@@ -397,7 +417,7 @@ Sub 整合()
         wkbAC.Close SaveChanges:=False
     End If
     '''''''''''''''
-    ThisWorkbook.Activate
+    wkbVendor.Activate
     Worksheets(sheetName).Activate
     Application.ScreenUpdating = True
     
@@ -516,8 +536,8 @@ Sub 整合()
     設定小數點幾位 sheetName, "Ordered Amt(K/NTD)", 2
     設定小數點幾位 sheetName, "Ordered Amt(K/USD)", 2
     
-	設定千分號comma sheetName, "Ordered Qty"
-	
+    設定千分號comma sheetName, "Ordered Qty"
+        
 End Sub
 
 Sub 設定群組(sheetName As String, startHeader As String, endHeader As String)
@@ -571,4 +591,6 @@ Sub 設定千分號comma(sheetName As String, columnName As String)
     Sheets(sheetName).Columns(FoundNumber.Column).numberFormat = "#,##0"
 
 End Sub
+
+
 
